@@ -1,71 +1,92 @@
 import tkinter as tk
-from tkinter import ttk
 
 root = tk.Tk()
 root.title("Python Calculator")
 root.geometry("320x450")
-root.configure(bg="#1e1e1e")
+root.configure(bg="#121212")
 
-style = ttk.Style()
-style.theme_use("clam")
+display = tk.Entry(root,
+                   font=("Segoe UI", 28),
+                   justify="right",
+                   bg="#1f1f1f",
+                   fg="white",
+                   bd=0,
+                   relief="flat")
+display.grid(row=0, column=0, columnspan=4, padx=10, pady=20, ipady=15, sticky="nsew")
 
-style.configure("TButton",
-                font=("Segoe UI", 16),
-                padding=10,
-                relief="flat",
-                background="#2d2d2d",
-                foreground="white")
+for i in range(1, 6):
+    root.rowconfigure(i, weight=1)
+for j in range(4):
+    root.columnconfigure(j, weight=1)
 
-style.map("TButton",
-          background=[("active", "#3a3a3a")])
-
-style.configure("Operator.TButton",
-                background="#ff9500",
-                foreground="white")
-
-style.map("Operator.TButton",
-          background=[("active", "#e08900")])
-
-entry = tk.Entry(root, font=("Segoe UI", 28), justify="right",
-                 bg="#3a3a3a", fg="white", bd=0, relief="flat")
-entry.pack(fill="x", padx=20, pady=20, ipady=15)
-
-def click(value):
-    if value == "=":
+def on_click(text):
+    if text == "AC":
+        display.delete(0, tk.END)
+    elif text == "=":
         try:
-            result = eval(entry.get())
-            entry.delete(0, tk.END)
-            entry.insert(tk.END, result)
+            result = eval(display.get().replace("×", "*").replace("÷", "/"))
+            display.delete(0, tk.END)
+            display.insert(tk.END, result)
         except:
-            entry.delete(0, tk.END)
-            entry.insert(tk.END, "Error")
-    elif value == "C":
-        entry.delete(0, tk.END)
+            display.delete(0, tk.END)
+            display.insert(tk.END, "Error")
     else:
-        entry.insert(tk.END, value)
+        display.insert(tk.END, text)
 
-buttons = [
-    ["AC", "%", "÷", "×"],
-    ["7", "8", "9", "-"],
-    ["4", "5", "6", "+"],
-    ["1", "2", "3", "="],
-    ["0", ".", "" , ""]
+btn_cfg_num = {
+    "font": ("Segoe UI", 16),
+    "bg": "#2b2b2b",
+    "fg": "white",
+    "activebackground": "#3a3a3a",
+    "activeforeground": "white",
+    "bd": 0,
+    "relief": "flat"
+}
+
+btn_cfg_op = {
+    "font": ("Segoe UI", 16),
+    "bg": "#ff9500",
+    "fg": "white",
+    "activebackground": "#e08900",
+    "activeforeground": "white",
+    "bd": 0,
+    "relief": "flat"
+}
+
+btn_cfg_func = {
+    "font": ("Segoe UI", 16),
+    "bg": "#3a3a3a",
+    "fg": "white",
+    "activebackground": "#4a4a4a",
+    "activeforeground": "white",
+    "bd": 0,
+    "relief": "flat"
+}
+
+layout = [
+    ["AC", "%", "-", ""],
+    ["7", "8", "9", "×"],
+    ["4", "5", "6", "-"],
+    ["1", "2", "3", "+"],
+    ["0", "=", ".", ""]
 ]
 
-for row in buttons:
-    frame = tk.Frame(root, bg="#1e1e1e")
-    frame.pack(fill="x", padx=20, pady=5)
-    for btn in row:
-        if btn == "":
-            tk.Label(frame, bg="#1e1e1e").pack(side="left", expand=True)
+for r, row in enumerate(layout, start=1):
+    for c, text in enumerate(row):
+        if text == "":
             continue
 
-        style_name = "TButton"
-        if btn in ["+", "-", "×", "÷", "="]:
-            style_name = "Operator.TButton"
+        if text in ["+", "-", "×", "÷", "="]:
+            cfg = btn_cfg_op
+        elif text in ["AC", "%"]:
+            cfg = btn_cfg_func
+        else:
+            cfg = btn_cfg_num
 
-        b = ttk.Button(frame, text=btn, style=style_name,
-                       command=lambda v=btn: click(v))
-        b.pack(side="left", expand=True, fill="x", padx=5)
+        btn = tk.Button(root,
+                        text=text,
+                        command=lambda t=text: on_click(t),
+                        **cfg)
+        btn.grid(row=r, column=c, padx=5, pady=5, sticky="nsew")
 
 root.mainloop()
